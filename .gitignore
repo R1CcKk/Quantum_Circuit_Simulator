@@ -1,5 +1,4 @@
-# --- Binari e file compilati ---
-# Esclude l'eseguibile che hai generato
+
 quantum_test
 *.o
 *.obj
@@ -7,27 +6,18 @@ quantum_test
 *.out
 *.app
 
-# --- Cartelle di Build ---
-# Fondamentale: non caricare mai la cartella build di CMake
 build/
 bin/
 lib/
 
-# --- Librerie Esterne ---
-# Se vuoi che il tuo repo sia leggero, puoi escludere Eigen. 
-# Se però vuoi che il progetto sia "ready-to-run" per ora puoi commentare questa riga.
-# externalEigen/eigen/
-
-# --- IDE e Editor ---
 .vscode/
 .idea/
 *.swp
 *.swo
-.DS_Store (per Mac)
-Thumbs.db (per Windows)
+.DS_Store
+*.DS_Store
+Thumbs.db
 
-# --- Output del simulatore ---
-# Se il tuo programma genera file di testo o CSV con i risultati (es. nella cartella output)
 output/
 *.csv
 *.txt
