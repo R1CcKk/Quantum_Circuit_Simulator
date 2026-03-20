@@ -16,7 +16,24 @@ QubitRegister::QubitRegister(int n): numQubits(n){
 
 //The Hadamard gate creates superposition by transforming |0> to (|0> + |1>)/sqrt(2) and |1> to (|0> - |1>)/sqrt(2).
 void QubitRegister::applyHadamard(int qubitIndex) {
+    long long mask = 1LL << qubitIndex;
+    long long size = stateVector.size();
 
+    #pragma omp parallel for
+    for(long long i = 0; i < size; ++i){
+        
+        if(!(i & mask)){
+            long long i0 = i;   
+            long long i1 = i | mask;
+            
+            std::complex<double> temp0 = stateVector[i0];
+            std::complex<double> temp1 = stateVector[i1];
+            
+            // Quantum Hadamard gate: alpha|0> + beta|1> -> (alpha + beta)/sqrt(2)|0> + (alpha - beta)/sqrt(2)|1>
+            stateVector[i0] = (temp0 + temp1) / std::sqrt(2.0); //superposition of the two states
+            stateVector[i1] = (temp0 - temp1) / std::sqrt(2.0); //superposition of the two states
+        }
+    }
 }
 
 //The Pauli-X gate (also known as the NOT gate) flips the state of a qubit: it transforms |0> to |1> and |1> to |0>.
@@ -55,5 +72,16 @@ void QubitRegister::applyPauliX(int qubitIndex) {
 
 //The Pauli-Z gate applies a phase flip to the |1> state, transforming |0> to |0> and |1> to -|1>.
 void QubitRegister::applyPauliZ(int qubitIndex) {
-
+        long long mask = 1LL << qubitIndex;
+        long long size = stateVector.size();
+    
+        #pragma omp parallel for
+        for(long long i = 0; i < size; ++i){
+            //I apply the gate only to a couple at time, so I only check if the "second switch" is on (state 1).
+            //If it's on, I apply a phase flip by multiplying the amplitude by -1.
+            if(i & mask){
+                // Quantum Z-gate: alpha|0> + beta|1> -> alpha|0> - beta|1>
+                stateVector[i] = -stateVector[i]; //apply phase flip
+            }
+        }
 }
