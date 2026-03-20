@@ -32,7 +32,7 @@ class QubitRegister {
         void applyUnitary(int qubitIndex, const Eigen::Matrix2cd& unitary);
         void applyMultiQubitUnitary(const std::vector<int>& qubitIndices, const Eigen::MatrixXcd& unitary);
 
-        void measure(int qubitIndex);
+        int measure(int qubitIndex);
 
         void printState() const;
 };

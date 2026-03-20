@@ -85,3 +85,55 @@ void QubitRegister::applyPauliZ(int qubitIndex) {
             }
         }
 }
+//The CNOT gate (Controlled-NOT) flips the target qubit if the control qubit is in the |1> state, and does nothing if the control qubit is in the |0> state.
+void QubitRegister::applyCNOT(int controlQubit, int targetQubit){
+    long long maskControl = 1LL << controlQubit;
+    long long maskTarget = 1LL << targetQubit;
+    long long size = stateVector.size();
+
+    #pragma omp parallel for
+    for(long long i = 0; i < size; ++i){
+
+        if((i & maskControl) & (i & maskTarget)){ // Check if control qubit is |1> and target qubit is |1> and check i & maskTarget to avoid redundant swaps, they would nullify the gate
+            long long i0 = i; // state where the target qubit is unchanged
+            long long i1 = i ^ maskTarget; // state where the target qubit is flipped 
+            
+            std::complex<double> temp = stateVector[i0];
+            stateVector[i0] = stateVector[i1]; //swap the amplitudes
+            stateVector[i1] = temp; //swap the amplitudes
+        }
+    }    
+}
+
+int QubitRegister::measure(int qubitIndex)
+{
+    // Measurement collapses the state of the qubit to either |0> or |1> based on the probabilities derived from the amplitudes.
+    // To measure a qubit, I calculate the probability of it being in the |0> state and the |1> state by summing the squares of the magnitudes of the corresponding coefficients in the state vector.
+    // Then, I generate a random number to determine the outcome of the measurement based on these probabilities. After measurement, I collapse the state vector to reflect the measured outcome.
+
+    long long mask = 1LL << qubitIndex;
+    long long size = stateVector.size();
+    double prob0 = 0.0;
+
+    for(long long i = 0; i < size; ++i){
+        if(i & mask){
+            prob0 += std::norm(stateVector[i]);
+        }
+    }
+
+    double randomValue = (double)rand() / RAND_MAX; //random number between 0 and 1
+    int outcome = (randomValue < prob0) ? 0 : 1; //determine the outcome based on the probabilities. 0 if the random value is less than the probability of being in state |0>, otherwise 1
+    // Collapse the state vector based on the measurement outcome
+    int probOutcome = (outcome == 1) ? prob0 : 1 - prob0; //probability of the measured outcome
+
+    #pragma omp parallel for
+    for(long long i = 0; i < size; ++i){
+        if((!(i & mask) & outcome == 1) | ((i & mask) & outcome == 0)){ 
+            stateVector[i] = 0; //collapse the state vector by setting the amplitudes of the states that are not consistent with the measurement outcome to zero
+        } else {
+            stateVector[i] /= std::sqrt(probOutcome); //normalize the remaining amplitudes to ensure the total probability remains 1
+        }
+    }
+    return outcome;
+}
+
