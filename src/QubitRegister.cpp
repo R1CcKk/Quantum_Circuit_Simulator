@@ -105,6 +105,28 @@ void QubitRegister::applyCNOT(int controlQubit, int targetQubit){
     }    
 }
 
+void QubitRegister::applyToffoli(int controlQubit1, int controlQubit2, int targetQubit)
+{
+    long long maskControl1 = 1LL << controlQubit1;
+    long long maskControl2 = 1LL << controlQubit2;
+    long long maskTarget = 1LL << targetQubit;
+    long long size = stateVector.size();
+
+#pragma omp parallel for
+    for (long long i = 0; i < size; ++i)
+    {
+        if ((i & maskControl1) && (i & maskControl2) && (i & maskTarget))
+        { // Check if both control qubits are |1> and check i & maskTarget to avoid redundant swaps, they would nullify the gate
+            long long i0 = i;
+            long long i1 = i ^ maskTarget;
+
+            std::complex<double> temp = stateVector[i0];
+            stateVector[i0] = stateVector[i1];
+            stateVector[i1] = temp;
+        }
+    }
+}
+
 int QubitRegister::measure(int qubitIndex)
 {
     // Measurement collapses the state of the qubit to either |0> or |1> based on the probabilities derived from the amplitudes.
