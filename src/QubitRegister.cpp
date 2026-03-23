@@ -140,8 +140,66 @@ void QubitRegister::applyPhaseShift(int qubitIndex, double angle){
     }
 }
 
-int QubitRegister::measure(int qubitIndex)
-{
+void QubitRegister::applyRotationX(int qubitIndex, double angle){
+    long long mask = 1LL << qubitIndex;
+    long long size = stateVector.size();
+    std::complex<double> cosAngle = std::cos(angle / 2.0);
+    std::complex<double> sinAngle = std::sin(angle / 2.0);
+
+    #pragma omp parallel for
+    for(long long i = 0; i < size; ++i){
+        if(!(i & mask)){
+            long long i0 = i;
+            long long i1 = i | mask;
+
+            std::complex<double> temp0 = stateVector[i0];
+            std::complex<double> temp1 = stateVector[i1];
+
+            // Quantum RX rotation: alpha|0> + beta|1> -> cos(angle/2) * (alpha|0> + beta|1>) - i*sin(angle/2) * (alpha|1> - beta|0>)
+            stateVector[i0] = cosAngle * temp0 - std::complex<double>(0, 1) * sinAngle * temp1; //rotate around X-axis
+            stateVector[i1] = cosAngle * temp1 - std::complex<double>(0, 1) * sinAngle * temp0; //rotate around X-axis
+        }
+    }
+}
+
+void QubitRegister::applyRotationY(int qubitIndex, double angle){
+    long long mask = 1LL << qubitIndex;
+    long long size = stateVector.size();
+    std::complex<double> cosAngle = std::cos(angle / 2.0);
+    std::complex<double> sinAngle = std::sin(angle / 2.0);
+
+    #pragma omp parallel for
+    for(long long i = 0; i < size; ++i){
+        if(!(i & mask)){
+            long long i0 = i;
+            long long i1 = i | mask;
+
+            std::complex<double> temp0 = stateVector[i0];
+            std::complex<double> temp1 = stateVector[i1];
+
+            // Quantum RY rotation: alpha|0> + beta|1> -> cos(angle/2) * (alpha|0> + beta|1>) - sin(angle/2) * (alpha|1> - beta|0>)
+            stateVector[i0] = cosAngle * temp0 - sinAngle * temp1; //rotate around Y-axis
+            stateVector[i1] = cosAngle * temp1 + sinAngle * temp0; //rotate around Y-axis
+        }
+    }
+}
+
+void QubitRegister::applyRotationZ(int qubitIndex, double angle){
+    long long mask = 1LL << qubitIndex;
+    long long size = stateVector.size();
+    std::complex<double> phaseShift = std::polar(1.0, angle / 2.0); //e^(i*angle/2)
+
+    #pragma omp parallel for
+    for(long long i = 0; i < size; ++i){
+        if(i & mask){
+            stateVector[i] *= phaseShift; 
+        } else {
+            stateVector[i] /= phaseShift; 
+        }
+    }
+}
+
+int QubitRegister::measure(int qubitIndex){
     // Measurement collapses the state of the qubit to either |0> or |1> based on the probabilities derived from the amplitudes.
     // To measure a qubit, I calculate the probability of it being in the |0> state and the |1> state by summing the squares of the magnitudes of the corresponding coefficients in the state vector.
     // Then, I generate a random number to determine the outcome of the measurement based on these probabilities. After measurement, I collapse the state vector to reflect the measured outcome.
