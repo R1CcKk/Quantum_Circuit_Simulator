@@ -127,6 +127,19 @@ void QubitRegister::applyToffoli(int controlQubit1, int controlQubit2, int targe
     }
 }
 
+void QubitRegister::applyPhaseShift(int qubitIndex, double angle){
+    long long mask = 1LL << qubitIndex;
+    long long size = stateVector.size();
+    std::complex<double> phaseShift = std::polar(1.0, angle); //e^(i*angle)
+
+    #pragma omp parallel for
+    for(long long i = 0; i < size; ++i){
+        if(i & mask){
+            stateVector[i] *= phaseShift; //apply phase shift
+        }
+    }
+}
+
 int QubitRegister::measure(int qubitIndex)
 {
     // Measurement collapses the state of the qubit to either |0> or |1> based on the probabilities derived from the amplitudes.
@@ -157,5 +170,9 @@ int QubitRegister::measure(int qubitIndex)
         }
     }
     return outcome;
+}
+
+void QubitRegister::printState() const {
+    std::cout << "State vector: " << stateVector.transpose() << std::endl;
 }
 
