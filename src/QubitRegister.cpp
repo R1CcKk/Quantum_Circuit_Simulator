@@ -94,7 +94,7 @@ void QubitRegister::applyCNOT(int controlQubit, int targetQubit){
     #pragma omp parallel for
     for(long long i = 0; i < size; ++i){
 
-        if((i & maskControl) & (i & maskTarget)){ // Check if control qubit is |1> and target qubit is |1> and check i & maskTarget to avoid redundant swaps, they would nullify the gate
+        if((i & maskControl) && (i & maskTarget)){ // Check if control qubit is |1> and target qubit is |1> and check i & maskTarget to avoid redundant swaps, they would nullify the gate
             long long i0 = i; // state where the target qubit is unchanged
             long long i1 = i ^ maskTarget; // state where the target qubit is flipped 
             
@@ -115,7 +115,7 @@ void QubitRegister::applyToffoli(int controlQubit1, int controlQubit2, int targe
 #pragma omp parallel for
     for (long long i = 0; i < size; ++i)
     {
-        if ((i & maskControl1) && (i & maskControl2) && (i & maskTarget))
+        if ((i & maskControl1) && (i & maskControl2) && !(i & maskTarget))
         { // Check if both control qubits are |1> and check i & maskTarget to avoid redundant swaps, they would nullify the gate
             long long i0 = i;
             long long i1 = i ^ maskTarget;
@@ -208,28 +208,40 @@ int QubitRegister::measure(int qubitIndex){
 
     long long mask = 1LL << qubitIndex;
     long long size = stateVector.size();
-    double prob0 = 0.0;
+    double prob1 = 0.0;
 
     for(long long i = 0; i < size; ++i){
         if(i & mask){
-            prob0 += std::norm(stateVector[i]);
+            prob1 += std::norm(stateVector[i]);
         }
     }
 
     double randomValue = (double)rand() / RAND_MAX; //random number between 0 and 1
-    int outcome = (randomValue < prob0) ? 0 : 1; //determine the outcome based on the probabilities. 0 if the random value is less than the probability of being in state |0>, otherwise 1
+    int outcome = (randomValue < prob1) ? 1 : 0; //determine the outcome based on the probabilities. 1 if the random value is less than the probability of being in state |1>, otherwise 0
     // Collapse the state vector based on the measurement outcome
-    int probOutcome = (outcome == 1) ? prob0 : 1 - prob0; //probability of the measured outcome
+    double probOutcome = (outcome == 1) ? prob1 : 1 - prob1; //probability of the measured outcome
+
+    if(probOutcome <1e-15){
+        probOutcome = 1e-15; //avoid division by zero in case of very small probabilities
+    }
+    double normFactor = 1.0 / std::sqrt(probOutcome); //normalization factor to ensure the state vector remains normalized after collapse
 
     #pragma omp parallel for
     for(long long i = 0; i < size; ++i){
-        if((!(i & mask) & outcome == 1) | ((i & mask) & outcome == 0)){ 
+        if((!(i & mask) && outcome == 1) || ((i & mask) && outcome == 0)){ 
             stateVector[i] = 0; //collapse the state vector by setting the amplitudes of the states that are not consistent with the measurement outcome to zero
         } else {
-            stateVector[i] /= std::sqrt(probOutcome); //normalize the remaining amplitudes to ensure the total probability remains 1
+            stateVector[i] *= normFactor; //normalize the remaining amplitudes to ensure the total probability remains 1
         }
     }
     return outcome;
+}
+
+std::complex<double> QubitRegister::getAmplitude(int index) const {
+    if(index < 0 || index >= stateVector.size()){
+        throw std::out_of_range("Index out of range");
+    }
+    return stateVector[index]; 
 }
 
 void QubitRegister::printState() const {

@@ -31,6 +31,8 @@ class QubitRegister {
 
         int measure(int qubitIndex);
 
+        std::complex<double> getAmplitude(int index) const;
+
         void printState() const;
 };
 
