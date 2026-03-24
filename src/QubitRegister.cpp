@@ -199,6 +199,8 @@ void QubitRegister::applyRotationZ(int qubitIndex, double angle){
     }
 }
 
+
+
 int QubitRegister::measure(int qubitIndex){
     // Measurement collapses the state of the qubit to either |0> or |1> based on the probabilities derived from the amplitudes.
     // To measure a qubit, I calculate the probability of it being in the |0> state and the |1> state by summing the squares of the magnitudes of the corresponding coefficients in the state vector.

@@ -29,9 +29,6 @@ class QubitRegister {
         void applyRotationY(int qubitIndex, double angle);
         void applyRotationZ(int qubitIndex, double angle);
 
-        void applyUnitary(int qubitIndex, const Eigen::Matrix2cd& unitary);
-        void applyMultiQubitUnitary(const std::vector<int>& qubitIndices, const Eigen::MatrixXcd& unitary);
-
         int measure(int qubitIndex);
 
         void printState() const;
