@@ -164,5 +164,16 @@ int main()
     std::cout << "TEST SUMMARY: If all 100% (except 50% ones), the engine is PERFECT." << std::endl;
     std::cout << "==========================================================" << std::endl;
 
+    std::cout << "\nGenerating GHZ state for Python visualization..." << std::endl;
+
+    QubitRegister visualReg(3); 
+    visualReg.applyHadamard(0);
+    visualReg.applyCNOT(0, 1);
+    visualReg.applyCNOT(1, 2);
+
+    visualReg.exportToJson("simulation_result.json", "State GHZ (Entanglement 3-Qubit)");
+
+    std::cout << "File 'simulation_result.json' generated successfully!" << std::endl;
+
     return 0;
 }

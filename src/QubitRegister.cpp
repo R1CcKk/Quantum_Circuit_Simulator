@@ -249,20 +249,26 @@ void QubitRegister::printState() const {
     std::cout << "State vector: " << stateVector.transpose() << std::endl;
 }
 
-void QubitRegister::exportToJson(const std::string& filename, const std::string& circuitName) const {
+void QubitRegister::exportToJson(const std::string &filename, const std::string &circuitName) const
+{
     std::ofstream file(filename);
-    if(!file.is_open()){
-        throw std::runtime_error("Could not open file for writing");
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Could not open file for writing: " + filename);
     }
-    file << "{ \n";  
-    file << " \"metadata\": {\n";
-    file << "       \"circuitName\": \"" << circuitName << "\",\n";
-    file << "           \"numQubits\": " << numQubits << "\n";
-    file << "           \"vectorSize\": " << stateVector.size() << "\n";
-    file<< "},\n";
-    file<< "amplitudes\": [\n";
 
-    for(long long i = 0; i < stateVector.size(); ++i){
+    file << std::fixed << std::setprecision(10);
+
+    file << "{\n";
+    file << "  \"metadata\": {\n";
+    file << "    \"circuitName\": \"" << circuitName << "\",\n";
+    file << "    \"numQubits\": " << numQubits << ",\n";          // AGGIUNTA VIRGOLA
+    file << "    \"vectorSize\": " << stateVector.size() << "\n"; // L'ULTIMO NON VUOLE VIRGOLA
+    file << "  },\n";                                             // CHIUDE METADATA
+    file << "  \"amplitudes\": [\n";                              // FIX VIRGOLETTE
+
+    for (long long i = 0; i < stateVector.size(); ++i)
+    {
         file << "    {\n";
         file << "      \"index\": " << i << ",\n";
         file << "      \"real\": " << stateVector[i].real() << ",\n";
@@ -270,8 +276,7 @@ void QubitRegister::exportToJson(const std::string& filename, const std::string&
         file << "      \"prob\": " << std::norm(stateVector[i]) << "\n";
         file << "    }";
 
-        //add the comma after each amplitude except for the last one (JSON rules)
-        if (i < stateVector.size() - 1)
+        if (i < (long long)stateVector.size() - 1)
             file << ",";
         file << "\n";
     }
@@ -280,8 +285,4 @@ void QubitRegister::exportToJson(const std::string& filename, const std::string&
     file << "}\n";
 
     file.close();
-
-    //to do: Think about implementing setprecision() for algorithms sensitive to phase and amplitude,
-    // to avoid issues with floating-point precision when exporting the state vector to JSON.
-    //<< is for 6 decimal digits, ok for small tests, but not for more complex circuits
 }
