@@ -34,6 +34,8 @@ class QubitRegister {
         std::complex<double> getAmplitude(int index) const;
 
         void printState() const;
+
+        void exportToJson(const std::string& filename, const std::string& circuitName) const;
 };
 
 

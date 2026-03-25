@@ -1,5 +1,6 @@
 #include<cmath>
 #include "../include/QubitRegister.hpp"
+#include<fstream>
 
 
 //The general idea is that I'm allocating a contiguous block of memory to store the state vector of the qubit register.
@@ -248,3 +249,39 @@ void QubitRegister::printState() const {
     std::cout << "State vector: " << stateVector.transpose() << std::endl;
 }
 
+void QubitRegister::exportToJson(const std::string& filename, const std::string& circuitName) const {
+    std::ofstream file(filename);
+    if(!file.is_open()){
+        throw std::runtime_error("Could not open file for writing");
+    }
+    file << "{ \n";  
+    file << " \"metadata\": {\n";
+    file << "       \"circuitName\": \"" << circuitName << "\",\n";
+    file << "           \"numQubits\": " << numQubits << "\n";
+    file << "           \"vectorSize\": " << stateVector.size() << "\n";
+    file<< "},\n";
+    file<< "amplitudes\": [\n";
+
+    for(long long i = 0; i < stateVector.size(); ++i){
+        file << "    {\n";
+        file << "      \"index\": " << i << ",\n";
+        file << "      \"real\": " << stateVector[i].real() << ",\n";
+        file << "      \"imag\": " << stateVector[i].imag() << ",\n";
+        file << "      \"prob\": " << std::norm(stateVector[i]) << "\n";
+        file << "    }";
+
+        //add the comma after each amplitude except for the last one (JSON rules)
+        if (i < stateVector.size() - 1)
+            file << ",";
+        file << "\n";
+    }
+
+    file << "  ]\n";
+    file << "}\n";
+
+    file.close();
+
+    //to do: Think about implementing setprecision() for algorithms sensitive to phase and amplitude,
+    // to avoid issues with floating-point precision when exporting the state vector to JSON.
+    //<< is for 6 decimal digits, ok for small tests, but not for more complex circuits
+}
