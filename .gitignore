@@ -9,6 +9,8 @@ quantum_test
 build/
 bin/
 lib/
+venv/
+*.pyc
 
 .vscode/
 .idea/
