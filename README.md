@@ -36,6 +36,23 @@ The visualization scripts require Python 3 and the dependencies listed in `requi
 pip install -r requirements.txt
 ```
 
+### Performance Analysis: The Exponential Wall
+
+The following benchmark represents the execution time for applying a Hadamard gate to every qubit in the register. Tests were conducted on a machine with OpenMP parallelization enabled.
+
+| Qubits (n) | Time (ms) | Time (Approx) |
+|------------|-----------|---------------|
+| 10         | 2.42      | < 0.01 sec    |
+| 20         | 1,209     | ~ 1.2 sec     |
+| 25         | 49,385    | ~ 49 sec      |
+| 30         | 2,140,400 | ~ 35 min      |
+
+![Performance Scaling: The Exponential Wall](images/benchmark.png)
+
+### Observations
+
+As shown in the data, the simulation time doubles with each additional qubit ($T \propto 2^n$). This highlights the computational limits of classical hardware when simulating quantum systems. For $n=30$, the state vector requires approximately **16 GB of RAM** (assuming 128-bit complex doubles).
+
 ### Compilation and Build System
 
 The project uses CMake to manage the build process, locate the Eigen library, and configure OpenMP support.
