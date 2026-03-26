@@ -262,10 +262,10 @@ void QubitRegister::exportToJson(const std::string &filename, const std::string 
     file << "{\n";
     file << "  \"metadata\": {\n";
     file << "    \"circuitName\": \"" << circuitName << "\",\n";
-    file << "    \"numQubits\": " << numQubits << ",\n";          // AGGIUNTA VIRGOLA
-    file << "    \"vectorSize\": " << stateVector.size() << "\n"; // L'ULTIMO NON VUOLE VIRGOLA
-    file << "  },\n";                                             // CHIUDE METADATA
-    file << "  \"amplitudes\": [\n";                              // FIX VIRGOLETTE
+    file << "    \"numQubits\": " << numQubits << ",\n";          
+    file << "    \"vectorSize\": " << stateVector.size() << "\n"; 
+    file << "  },\n";                                             
+    file << "  \"amplitudes\": [\n";                              
 
     for (long long i = 0; i < stateVector.size(); ++i)
     {

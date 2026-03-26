@@ -171,9 +171,7 @@ int main()
     visualReg.applyCNOT(0, 1);
     visualReg.applyCNOT(1, 2);
 
-    visualReg.exportToJson("simulation_result.json", "State GHZ (Entanglement 3-Qubit)");
-
-    std::cout << "File 'simulation_result.json' generated successfully!" << std::endl;
+    
 
     return 0;
 }
