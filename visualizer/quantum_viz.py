@@ -17,6 +17,8 @@ def visualize_quantum_data(json_path):
     if num_qubits  <= 3:
         print(f"Detected {num_qubits} Qubit: Drawing Bloch Sphere...")
         draw_bloch(amplitudes, num_qubits)
+        print(f"Detected {num_qubits} Qubits: Drawing Probability Histogram...")
+        draw_histogram(indices, probs, num_qubits)
 
     else:
         print(f"Detected {num_qubits} Qubits: Drawing Probability Histogram...")
