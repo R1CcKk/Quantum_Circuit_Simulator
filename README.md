@@ -77,4 +77,3 @@ Execute the benchmark tool to record execution times for registers up to 30 qubi
 ./benchmark
 python ../scripts/benchmark_viz.py
 ```
-TODO Cuda implementation
