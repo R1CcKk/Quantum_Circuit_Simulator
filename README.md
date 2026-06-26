@@ -1,3 +1,4 @@
+This project has as its sole aim that of learning and personal improvement.
 # Quantum Simulator C++
 
 A high-performance quantum circuit simulator written in C++ that utilizes the Eigen library for state-vector manipulation and OpenMP for parallel acceleration. The project includes a Python-based visualization suite to analyze quantum states and performance metrics.
