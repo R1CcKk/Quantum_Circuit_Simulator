@@ -9,8 +9,8 @@ int main()
     QubitRegister reg(3);
 
     reg.applyRotationY(0, M_PI / 4.0);
-    reg.applyPauliX(1);
-    reg.applyHadamard(2);
+    reg.applyPauliZ(0);
+    reg.applyHadamard(1);
 
     
     reg.exportToJson("simulation_result.json", "Test 3 states");

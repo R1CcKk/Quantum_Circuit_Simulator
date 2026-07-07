@@ -9,7 +9,7 @@ int main(){
     benchFile << "qubits,time_ms\n";
 
     std::cout << "--- PERFORMANCE BENCHMARK ---" << std::endl;
-    for(int n = 2; n <= 30; ++n){
+    for(int n = 2; n <= 29; ++n){
         QubitRegister reg(n);
 
         auto start = std::chrono::high_resolution_clock::now();
